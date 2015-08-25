@@ -13,6 +13,11 @@ import java.awt.GraphicsEnvironment;
  * @author Derek.Bickhart
  */
 public class GuiCmdLineParser extends SimpleCmdLineParser{
+    private boolean isGui = false;
+
+    GuiCmdLineParser(String usage) {
+        super.usage = usage;
+    }
     
     /**
      * This wraps the parity checking and argument parsing of the GetCmdOpt abstract class.
@@ -27,8 +32,8 @@ public class GuiCmdLineParser extends SimpleCmdLineParser{
     public void GetAndCheckOpts(String[] args, String flags, String required){
         try{
             if(args.length == 0){
-                System.out.println(this.usage);
-                System.exit(0);
+                GuiCheck();
+                return;
             }
                 
             for(String a : args){
@@ -42,36 +47,7 @@ public class GuiCmdLineParser extends SimpleCmdLineParser{
             
             this.ProcessCmdString(args, flags);
             if(!this.SimpleParityCheck(required)){
-                if(GraphicsEnvironment.isHeadless()){
-                    System.out.println("Missing key command line arguments!");
-                    System.out.println(this.usage);
-                    System.exit(0);
-                }else{
-                    try {
-                        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                            if ("Nimbus".equals(info.getName())) {
-                                javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                                break;
-                            }
-                        }
-                    } catch (ClassNotFoundException ex) {
-                        java.util.logging.Logger.getLogger(GetMaskFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-                    } catch (InstantiationException ex) {
-                        java.util.logging.Logger.getLogger(GetMaskFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-                    } catch (IllegalAccessException ex) {
-                        java.util.logging.Logger.getLogger(GetMaskFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-                    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-                        java.util.logging.Logger.getLogger(GetMaskFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-                    }
-                    //</editor-fold>
-
-                    /* Create and display the form */
-                    java.awt.EventQueue.invokeLater(new Runnable() {
-                        public void run() {
-                            new GetMaskFrame().setVisible(true);
-                        }
-                    });
-                }
+                GuiCheck();
             }
         }catch(Exception ex){
             
@@ -79,5 +55,44 @@ public class GuiCmdLineParser extends SimpleCmdLineParser{
             ex.printStackTrace();
             System.exit(-1);
         }
+    }
+
+    private void GuiCheck() {
+        if(GraphicsEnvironment.isHeadless()){
+            System.out.println("Missing key command line arguments!");
+            System.out.println(this.usage);
+            System.exit(0);
+        }else{
+            try {
+                for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                        break;
+                    }
+                }
+            } catch (ClassNotFoundException ex) {
+                java.util.logging.Logger.getLogger(GetMaskFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (InstantiationException ex) {
+                java.util.logging.Logger.getLogger(GetMaskFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                java.util.logging.Logger.getLogger(GetMaskFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+                java.util.logging.Logger.getLogger(GetMaskFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            }
+            //</editor-fold>
+            
+            /* Create and display the form */
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new GetMaskFrame().setVisible(true);
+                }
+            });
+            
+            this.isGui = true;
+        }
+    }
+    
+    public boolean isGui(){
+        return this.isGui;
     }
 }

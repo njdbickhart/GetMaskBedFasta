@@ -27,38 +27,41 @@ public class GetMaskBedFasta {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        SimpleCmdLineParser cmd = new SimpleCmdLineParser(usage);
+        GuiCmdLineParser cmd = new GuiCmdLineParser(usage);
         
         cmd.GetAndCheckOpts(args, "f:o:s:", "fos", "fos", "fasta", "output", "stats");
-        BufferedWriter bed = null, stats = null;
         
-        try {
-            bed = Files.newBufferedWriter(Paths.get(cmd.GetValue("output")), Charset.defaultCharset());
-            stats = Files.newBufferedWriter(Paths.get(cmd.GetValue("stats")), Charset.defaultCharset());
-            stats.write("chr\tchrlen\tsumNs\tlongestN\tavgNLen\tmedianNLen\tstdevNLen\tpercentChrLenN");
-            stats.write(System.lineSeparator());
-        } catch (IOException ex) {
-            log.log(Level.SEVERE, "Could not initialize output files!", ex);
-        }
-        
-        // Main routine
-        try{
-            BufferedFastaReader reader = new BufferedFastaReader(cmd.GetValue("fasta"));
-            StatContainer statCon;
-            while((statCon = reader.readToNextChr(bed)) != null){
-                System.out.println("Working on chr: " + statCon.chrname);
-                stats.write(statCon.getFormatStatStr());
+        if(!cmd.isGui()){
+            BufferedWriter bed = null, stats = null;
+
+            try {
+                bed = Files.newBufferedWriter(Paths.get(cmd.GetValue("output")), Charset.defaultCharset());
+                stats = Files.newBufferedWriter(Paths.get(cmd.GetValue("stats")), Charset.defaultCharset());
+                stats.write("chr\tchrlen\tsumNs\tlongestN\tavgNLen\tmedianNLen\tstdevNLen\tpercentChrLenN");
+                stats.write(System.lineSeparator());
+            } catch (IOException ex) {
+                log.log(Level.SEVERE, "Could not initialize output files!", ex);
             }
-            reader.close();
-        }catch(IOException ex){
-            log.log(Level.SEVERE, "Error reading fasta file!", ex);
-        }
-        
-        try{
-            bed.close();
-            stats.close();
-        }catch(IOException ex){
-            log.log(Level.SEVERE, "Error closing stat and bed files!", ex);
+
+            // Main routine
+            try{
+                BufferedFastaReader reader = new BufferedFastaReader(cmd.GetValue("fasta"));
+                StatContainer statCon;
+                while((statCon = reader.readToNextChr(bed)) != null){
+                    System.out.println("Working on chr: " + statCon.chrname);
+                    stats.write(statCon.getFormatStatStr());
+                }
+                reader.close();
+            }catch(IOException ex){
+                log.log(Level.SEVERE, "Error reading fasta file!", ex);
+            }
+
+            try{
+                bed.close();
+                stats.close();
+            }catch(IOException ex){
+                log.log(Level.SEVERE, "Error closing stat and bed files!", ex);
+            }
         }
     }
     

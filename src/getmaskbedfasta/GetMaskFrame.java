@@ -5,8 +5,23 @@
  */
 package getmaskbedfasta;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
+import javax.swing.SwingWorker.StateValue;
 
 /**
  *
@@ -14,6 +29,7 @@ import javax.swing.JFileChooser;
  */
 public class GetMaskFrame extends javax.swing.JFrame {
     public static final String version = GetMaskBedFasta.version;
+    private static final JFrame dialogFrame = new JFrame("Message Box");
     /**
      * Creates new form GetMaskFrame
      */
@@ -44,11 +60,13 @@ public class GetMaskFrame extends javax.swing.JFrame {
         BedBrowse = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         RunButton = new javax.swing.JButton();
+        ClearButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        ConsoleTextPane = new javax.swing.JTextPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        ConsoleTextArea = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("GetMaskBedFasta");
 
         jLabel1.setText("Enter Input fasta file:");
 
@@ -90,6 +108,13 @@ public class GetMaskFrame extends javax.swing.JFrame {
             }
         });
 
+        ClearButton.setText("Clear");
+        ClearButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ClearButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -99,7 +124,7 @@ public class GetMaskFrame extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel2)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -112,18 +137,20 @@ public class GetMaskFrame extends javax.swing.JFrame {
                                     .addComponent(jLabel4))
                                 .addGap(18, 18, 18)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel5)
-                                        .addGap(0, 0, Short.MAX_VALUE))
                                     .addComponent(StatsFileName)
-                                    .addComponent(BedFileField))))
+                                    .addComponent(BedFileField)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addGap(18, 18, 18)
+                                .addComponent(RunButton)
+                                .addGap(0, 0, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(InputBrowse)
-                            .addComponent(StatsBrowse)
-                            .addComponent(BedBrowse)
-                            .addComponent(RunButton))))
-                .addContainerGap())
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(InputBrowse, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(StatsBrowse, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(BedBrowse, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(ClearButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(14, 14, 14))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -149,23 +176,27 @@ public class GetMaskFrame extends javax.swing.JFrame {
                         .addComponent(BedFileField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(BedBrowse)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(RunButton, javax.swing.GroupLayout.Alignment.TRAILING)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(RunButton)
+                    .addComponent(jLabel5)
+                    .addComponent(ClearButton)))
         );
 
-        ConsoleTextPane.setEditable(false);
-        jScrollPane1.setViewportView(ConsoleTextPane);
+        ConsoleTextArea.setColumns(20);
+        ConsoleTextArea.setLineWrap(true);
+        ConsoleTextArea.setRows(5);
+        jScrollPane2.setViewportView(ConsoleTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2)
+                    .addComponent(RunProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 1, Short.MAX_VALUE)
                 .addContainerGap())
@@ -179,8 +210,10 @@ public class GetMaskFrame extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(RunProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -227,14 +260,172 @@ public class GetMaskFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_BedBrowseActionPerformed
 
     private void RunButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RunButtonActionPerformed
-        // TODO add your handling code here:
+        // Check for input file field -- if empty trhow a message
+        String inputFasta;
+        if(this.InputFastaField.getText().isEmpty() || this.InputFastaField.getText().equals("")){
+            JOptionPane.showMessageDialog(dialogFrame, "You must input a fasta file for processing!");
+            return;
+        }else{
+            inputFasta = this.InputFastaField.getText();
+        }
+        Path fastaPath = Paths.get(inputFasta);
+        
+        
+        // Check for Bed and stat file names -- if empty add in default optional output
+        String bedFileName, statsFileName;
+        if(this.BedFileField.getText().isEmpty() || this.BedFileField.getText().equals(""))
+            bedFileName = fastaPath.getRoot().toString() + "output.bed";
+        else
+            bedFileName = this.BedFileField.getText();
+        
+        if(this.StatsFileName.getText().isEmpty() || this.StatsFileName.getText().equals(""))
+            statsFileName = fastaPath.getRoot().toString() + "output.stats";
+        else
+            statsFileName = this.StatsFileName.getText();
+        
+        BufferedWriter bed = null, stats = null;
+        
+        try {
+            bed = Files.newBufferedWriter(Paths.get(bedFileName), Charset.defaultCharset());
+            stats = Files.newBufferedWriter(Paths.get(statsFileName), Charset.defaultCharset());
+            stats.write("chr\tchrlen\tsumNs\tlongestN\tavgNLen\tmedianNLen\tstdevNLen\tpercentChrLenN");
+            stats.write(System.lineSeparator());
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(dialogFrame, "Error initializing files!");
+        }
+        
+        // Calculate the number of chromosome entries in the fasta file
+        int totalNumChrs = 0;
+        try{
+            ChrCounter counter = new ChrCounter(this.ConsoleTextArea, inputFasta);
+            counter.execute();
+            totalNumChrs = counter.get();
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(dialogFrame, "Error reading fasta file!");
+        }
+        this.RunProgressBar.setMaximum(totalNumChrs);
+                
+        // Main routine
+        int currentchrs = 0;
+        try{
+            MainRoutine routine = new MainRoutine(this.ConsoleTextArea, inputFasta, bed, stats);
+            routine.addPropertyChangeListener(new PropertyChangeListener(){
+
+                @Override
+                public void propertyChange(PropertyChangeEvent pce) {
+                    switch(pce.getPropertyName()){
+                        case "progress":
+                            RunProgressBar.setValue((Integer) pce.getNewValue());
+                            break;
+                        case "state":
+                            switch((StateValue)pce.getNewValue()){
+                                case DONE:
+                                    break;
+                            }
+                    }
+                }
+                
+            });
+            
+            routine.execute();
+            int result = routine.get();
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(dialogFrame, "Error processing fasta file!");
+        }
+        
+        // Close out everything
+        try{
+            bed.close();
+            stats.close();
+            
+            JOptionPane.showMessageDialog(dialogFrame, "Run completed!");
+        }catch(IOException ex){
+            JOptionPane.showMessageDialog(dialogFrame, "Error closing output files!");
+        }
+        
+        //this.ClearTextBoxes();
     }//GEN-LAST:event_RunButtonActionPerformed
 
+    private void ClearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ClearButtonActionPerformed
+        this.ClearTextBoxes();
+    }//GEN-LAST:event_ClearButtonActionPerformed
+
+    private class MainRoutine extends SwingWorker<Integer, String>{
+        private final JTextArea console;
+        private final String inputFasta;
+        private final BufferedWriter bed;
+        private final BufferedWriter stats;
+        
+        public MainRoutine(final JTextArea console, final String inputFasta, final BufferedWriter bed, final BufferedWriter stats){
+            this.console = console;
+            this.inputFasta = inputFasta;
+            this.bed = bed;
+            this.stats = stats;
+        }
+        
+        @Override
+        protected Integer doInBackground() throws Exception {
+            int currentchrs = 0;
+            BufferedFastaReader reader = new BufferedFastaReader(inputFasta);
+            StatContainer statCon;
+            while((statCon = reader.readToNextChr(bed)) != null){
+                publish("Working on chr: " + statCon.chrname);
+                setProgress(currentchrs);
+                stats.write(statCon.getFormatStatStr());
+            }
+            reader.close();
+            return 0;
+        }
+        
+        @Override
+        protected void process(final List<String> chunks) {
+            // Updates the messages text area
+            for (final String string : chunks) {
+              console.append(string);
+              console.append(System.lineSeparator());
+            }
+          }
+    }
+    
+    private class ChrCounter extends SwingWorker<Integer, String>{
+        private final JTextArea console;
+        private final String inputFasta;
+        
+        public ChrCounter(final JTextArea console, final String inputFasta){
+            this.console = console;
+            this.inputFasta = inputFasta;
+        }
+        
+        @Override
+        protected Integer doInBackground() throws Exception {
+            int totalNumChrs = 0;
+            BufferedReader reader = Files.newBufferedReader(Paths.get(inputFasta), Charset.defaultCharset());
+            publish("Identifying number of chromosomes in fasta...");
+            String line;
+            while((line = reader.readLine()) != null){
+                if(line.startsWith(">"))
+                    totalNumChrs++;
+            }
+            publish("Found: " + totalNumChrs + " chromosomes!");
+            return totalNumChrs;
+        }
+        
+        @Override
+        protected void process(final List<String> chunks) {
+            // Updates the messages text area
+            for (final String string : chunks) {
+              console.append(string);
+              console.append(System.lineSeparator());
+            }
+          }
+    }
+    
     
     private void ClearTextBoxes(){
         this.BedFileField.setText("");
         this.InputFastaField.setText("");
         this.StatsFileName.setText("");
+        this.ConsoleTextArea.setText("");
     }
     /**
      * @param args the command line arguments
@@ -274,11 +465,13 @@ public class GetMaskFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BedBrowse;
     private javax.swing.JTextField BedFileField;
-    private javax.swing.JTextPane ConsoleTextPane;
+    private javax.swing.JButton ClearButton;
+    private javax.swing.JTextArea ConsoleTextArea;
     private javax.swing.JFileChooser FileSelector;
     private javax.swing.JButton InputBrowse;
     private javax.swing.JTextField InputFastaField;
     private javax.swing.JButton RunButton;
+    private final javax.swing.JProgressBar RunProgressBar = new javax.swing.JProgressBar();
     private javax.swing.JButton StatsBrowse;
     private javax.swing.JTextField StatsFileName;
     private javax.swing.JLabel jLabel1;
@@ -287,7 +480,7 @@ public class GetMaskFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
     // End of variables declaration//GEN-END:variables
 }
