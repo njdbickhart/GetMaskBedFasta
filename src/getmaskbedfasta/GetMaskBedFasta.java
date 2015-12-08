@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * @author Derek.Bickhart
  */
 public class GetMaskBedFasta {
-    public static final String version = "0.0.1";
+    public static final String version = "0.0.2";
     private static final String usage = "GetmaskBedFasta version: " + version + System.lineSeparator() +
             "Usage: java -jar GetMaskBedFasta -f <fasta file> -o <output bed file> -s <output stats file>" + System.lineSeparator();
     private static final Logger log = Logger.getLogger(GetMaskBedFasta.class.getName());

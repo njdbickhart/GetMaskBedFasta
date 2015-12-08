@@ -100,6 +100,8 @@ public class BufferedFastaReader {
     private void getChrName(char[] chrname, int chrnamebuff) {
         // We last read part of the previous chromosome
         while(true){
+            if(lastIdx >= buffer.length)
+                break;
             // get the chromosome name
             if(buffer[lastIdx] == '>'){
                 this.lastIdx++;
