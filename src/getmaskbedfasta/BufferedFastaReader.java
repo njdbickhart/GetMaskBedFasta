@@ -114,7 +114,9 @@ public class BufferedFastaReader {
             chrnamebuff++;
             lastIdx++;
         }
-        this.curChr = String.copyValueOf(chrname).trim();
+        // New logic: only keep the first portion of a space-delimited name
+        
+        this.curChr = String.copyValueOf(chrname).split("\\s+")[0].trim();
     }
     
     // Returns three integers, first integer is the currentposition, second is the current run of N's, the third integer is only used if the first integer is zero
