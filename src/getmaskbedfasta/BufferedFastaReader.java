@@ -76,11 +76,7 @@ public class BufferedFastaReader {
         while(true){
             if((charRead = fasta.read(buffer)) != -1){
                 int[] ret = processBufferedChunk(0, charRead, currentpos, currentrun, stats, bed);
-                if(charRead == -1 && ! this.EOF){
-                    this.EOF = true;
-                    stats.setChrInfo(this.curChr, ret[0]);
-                    return stats; // reached the end of the file return final stats results!
-                }
+                
                 if(ret[0] == 0){
                     this.lastIdx = ret[1];
                     this.lastLen = charRead;
@@ -90,9 +86,15 @@ public class BufferedFastaReader {
                     currentpos = ret[0];
                     currentrun = ret[1];
                 }
-            }else{
+            }
+            if(charRead == -1 && ! this.EOF){
+                this.EOF = true;
+                stats.setChrInfo(this.curChr, currentpos);
+                return stats; // reached the end of the file return final stats results!
+            }else if(this.EOF){
                 return null;
             }
+            
         }
         
         return stats;
