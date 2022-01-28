@@ -33,6 +33,9 @@ public class BufferedFastaReader {
     public StatContainer readToNextChr(BufferedWriter bed) throws IOException{
         StatContainer stats = new StatContainer();
         
+        if(this.EOF)
+            return null;
+        
         char[] chrname = new char[256]; 
         int chrnamebuff = 0, currentpos = 0, currentrun = 0, charRead = 0;
         if(lastIdx > 0 && lastLen > 0){
