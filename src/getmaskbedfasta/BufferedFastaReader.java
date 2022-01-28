@@ -24,6 +24,8 @@ public class BufferedFastaReader {
     //private int lastCurPos = 0;
     private String curChr = "N/A";
     
+    private boolean EOF = false;
+    
     public BufferedFastaReader(String fastaFile) throws FileNotFoundException{
         this.fasta = new FileReader(fastaFile);
     }
@@ -74,8 +76,11 @@ public class BufferedFastaReader {
         while(true){
             if((charRead = fasta.read(buffer)) != -1){
                 int[] ret = processBufferedChunk(0, charRead, currentpos, currentrun, stats, bed);
-                if(charRead == -1)
-                    return null; // reached the end of the file!
+                if(charRead == -1 && ! this.EOF){
+                    this.EOF = true;
+                    stats.setChrInfo(this.curChr, ret[0]);
+                    return stats; // reached the end of the file return final stats results!
+                }
                 if(ret[0] == 0){
                     this.lastIdx = ret[1];
                     this.lastLen = charRead;
